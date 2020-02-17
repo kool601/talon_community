@@ -45,11 +45,16 @@ ctx.keymap(
         "[op] (arrow | lambo)": " -> ",
         "[op] fat (arrow | lambo)": " => ",
         # Completed matchables
-        "(empty parens | call)": "()",
+        "(empty parens | call | prexy)": "()",
         "empty (dict | object)": "{}",
         "(empty array | brackers)": "[]",
         # Blocks
         "[brace] block": [" {}", Key("left enter enter up tab")],
+        "[brace] shocker block": [
+            Key("cmd-right enter"),
+            "{}",
+            Key("enter up right enter tab"),
+        ],
         "(square | brax) block": ["[", Key("enter")],
         "(paren | prex) block": ["(", Key("enter")],
         # Combos
@@ -61,17 +66,17 @@ ctx.keymap(
         "[forward] slasher": "// ",
         # Statements
         "state (def | deaf | deft)": "def ",
-        "state if": "if ",
+        "state if": ["if ()", Key("left")],
         "state else if": [" else if ()", Key("left")],
         "state while": ["while ()", Key("left")],
-        "state for": "for ",
+        "state for": ["for ()", Key("left")],
         "state switch": ["switch ()", Key("left")],
         "state case": ["case \nbreak;", Key("up")],
         # Other Keywords
         "const": "const ",
         "static": "static ",
         "tip pent": "int ",
-        "tip char": "char ",
+        "tip (char | care)": "char ",
         "tip byte": "byte ",
         "tip float": "float ",
         "tip double": "double ",

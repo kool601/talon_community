@@ -2,20 +2,23 @@
 Make sure to install the talon plugin: https://github.com/tuomassalo/atom-talon
 """
 
-import time
 import re
+import time
+import os
 
-from talon.voice import Key, press, Str, Context, Rule
+from talon.voice import Context, Key, Rule, Str, press
+from talon import ui
+
+from .. import utils
 from ..utils import (
-    parse_words_as_integer,
+    extract_num_from_m,
     numeral_map,
     numerals,
     optional_numerals,
-    extract_num_from_m,
-    text,
+    parse_words_as_integer,
     remove_dragon_junk,
+    text,
 )
-from .. import utils
 
 ctx = Context("atom", bundle="com.github.atom")
 
@@ -57,7 +60,8 @@ def jump_to_bol(m):
     if line:
         press("escape")
         press("ctrl-g")
-        Str(str(line))(None)
+        # Str(str(line))(None)
+        utils.paste_text(line)
         press("enter")
 
 
@@ -130,16 +134,22 @@ def find_previous(m):
 
 def duplicate_line(m):
     line = extract_num_from_m(m)
-    press("cmd-right")
-    press("cmd-left")
-    press("cmd-left")
+    # press("cmd-right")
+    # press("cmd-left")
+    # press("cmd-left")
     execute_atom_command(COMMANDS.COPY_LINE, str(line))
     # press("backspace")
+    press("tab")
 
 
 def move_line(m):
     line = extract_num_from_m(m)
     execute_atom_command(COMMANDS.MOVE_LINE, str(line))
+
+
+def move_to_line(m):
+    cut_line(None)
+    paste_line(m)
 
 
 def select_lines(m):
@@ -229,6 +239,7 @@ snippets = {
     "define command": "definecommand",
     "define class": "class",
     "doc string": "docstring",
+    "self assign": "selfassign",
     "for loop": "forloop",
     "print": "print",
     "import": "import",
@@ -240,12 +251,28 @@ snippets = {
     "unit test class": "unittestclass",
     "define test class": "unittestclass",
 }
+snippet_formatters = {
+    "define function": utils.snake_text,
+    "define method": utils.snake_text,
+    "define property": utils.snake_text,
+    "define command": utils.snake_text,
+    "self assign": utils.snake_text,
+}
 
 
 def code_snippet(m):
-    words = " ".join([str(word).lower() for word in m._words[1:]])
-    Str(snippets[words])(None)
+    snippet_key = " ".join(m["atom.snippets"])
+    utils.insert(snippets[snippet_key])
     press("tab")
+
+
+def code_snippet_with_formatter(m):
+    snippet_key = " ".join(m["atom.snippets_with_formatter"])
+    utils.insert(snippets[snippet_key])
+    press("tab")
+    if utils.parse_words(m):
+        utils.snake_text(m)
+        press("tab")
 
 
 def code_snippet_naked(m):
@@ -290,10 +317,18 @@ def replace_left_of_equals_with_return(m):
     press("up")
 
 
-def open_fuzzy_file(m):
+def open_fuzzy_file(m=None, fuzzy_filename=None):
     press("cmd-t")
-    text(m)
+    if m:
+        text(m)
+    else:
+        utils.paste_text(fuzzy_filename)
     press("enter")
+
+
+def make_executable(m):
+    file = str(ui.active_window().doc)
+    os.system(f"chmod a+x {file}")
 
 
 keymap = {
@@ -315,7 +350,7 @@ keymap = {
     # 'snipple': [Key(atom_hotkey), Key(COMMANDS.DELETE_TO_BOL)],
     # 'snipper': [Key(atom_hotkey), Key(COMMANDS.DELETE_TO_EOL)],
     "(duplicate line | clonesert)" + numerals: duplicate_line,
-    "move line" + numerals: move_line,
+    "move line from" + numerals: move_line,
     "crew <dgndictation>": find_next,
     "trail <dgndictation>": find_previous,
     "replace next": Key("cmd-alt-e"),
@@ -345,7 +380,7 @@ keymap = {
     "(search all files | mark all | marco project)": Key("cmd-shift-f"),
     "case sensitive": Key("alt-cmd-c"),
     "command pallet": Key(atom_command_pallet),
-    "(cursor | curr) (center | mid)": command("center-line:toggle"),
+    "((cursor | curr) (center | mid) | curse enter)": command("center-line:toggle"),
     "(cursor | curr) top": [
         command("center-line:toggle"),
         command("center-line:toggle"),
@@ -358,13 +393,16 @@ keymap = {
         "expand-selection-to-quotes:toggle"
     ),
     # needs bracket-matcher atom package; still a bit poor.
-    "bracken": command("bracket-matcher:select-inside-bracket"),
+    "(bracken | select inside brackets)": command(
+        "bracket-matcher:select-inside-bracket"
+    ),
     "go match": command("bracket-matcher:go-to-matching-bracket"),
     "remove [matching] (bracket | brackets)": command(
         "bracket-matcher:remove-matching-brackets"
     ),
     "select in quotes": command("expand-selection-quotes"),
-    "quinn" + "({})".format(" | ".join(snippets.keys())): code_snippet,
+    "quinn {atom.snippets}": code_snippet,
+    "quinn {atom.snippets_with_formatter} [<dgndictation>]": code_snippet_with_formatter,
     # '({})'.format(' | '.join(snippets.keys())): code_snippet_naked,
     # python
     "quinn if": ["if :", Key("left")],
@@ -418,9 +456,21 @@ keymap = {
     # switch-header-source
     "switch [header] source": command("switch header source"),
     # treeview
-    "tree [view] rename": command("tree view rename"),
+    "(tree [view] rename | rename file)": command("tree view rename"),
+    # linter
+    "lint (next | neck)": command("linter ui default: next in current file"),
+    "lint (prev | previous)": command("linter ui default: previous in current file"),
+    # atom-isort
+    "sort imports": command("atom isort sort imports"),
+    # editor
+    "move line up": command("editor: move line up"),
+    "move line down": command("editor: move line down"),
+    "move [current line] [to] line" + numerals: move_to_line,
+    # other
+    "make executable": make_executable,
 }
-
+ctx.set_list("snippets", set(snippets.keys()) - set(snippet_formatters.keys()))
+ctx.set_list("snippets_with_formatter", snippet_formatters.keys())
 ctx.keymap(keymap)
 
 """

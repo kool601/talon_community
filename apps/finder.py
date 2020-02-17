@@ -26,8 +26,10 @@ ctx = Context("Finder", func=context)
 ctx.keymap(
     {
         # actions
-        "select all": Key("cmd-a"),
-        "copy": Key("cmd-c"),
+        # "select all": Key("cmd-a"),
+        # "copy": Key("cmd-c"),
+        # "cut": Key("cmd-x"),
+        # "paste": Key("cmd-v"),
         "duplicate": Key("cmd-d"),
         "eject": Key("cmd-e"),
         "(search | find)": Key("cmd-f"),
@@ -49,9 +51,7 @@ ctx.keymap(
         "add to side bar": Key("cmd-t"),
         "trash it": Key("cmd-backspace"),
         "new tab": Key("cmd-alt-o"),
-        "paste": Key("cmd-v"),
         "close": Key("cmd-w"),
-        "cut": Key("cmd-x"),
         "undo": Key("cmd-z"),
         "[finder] preferences": Key("cmd-,"),
         "(icon | icons) [(mode | view)]": Key("cmd-1"),
@@ -82,5 +82,8 @@ ctx.keymap(
         "spotlight window": Key("cmd-alt-space"),
         # NOT WORKING: Function key shorcuts (f8 through f12)
         "toggle hidden files": Key("cmd-shift-."),
+        # the following require addition of keyboard shortcuts in System Preferences
+        "zip it": Key("cmd-shift-z"),
+        "show package contents": Key("cmd-alt-o"),
     }
 )

@@ -1,8 +1,14 @@
 from talon.voice import Context, press, Key
 import string
 from ..utils import normalise_keys, insert
+from ..config import config
 
-alpha_alt = "air bat cap drum each fine gust harp sit jury crunch look made near odd pit quench red sun trap urge vest whale plex yank zip".split()
+# Alphabet words are configurable in your config.json.  default is talon_alphabet_words:
+talon_alphabet_words = "air bat cap drum each fine gust harp sit jury crunch look made near odd pit quench red sun trap urge vest whale plex yank zip"
+# voicecode_alphabet_words: "arch brov char dell etch fomp goof hark ice jinx koop lug mowsh nerb ork pooch quosh rosh sun teak unks verge womp trex yang zooch"
+
+alpha_alt = config.get("alphabet_words", talon_alphabet_words).split()
+
 alphabet = dict(zip(alpha_alt, string.ascii_lowercase))
 
 f_keys = {f"F {i}": f"f{i}" for i in range(1, 13)}
@@ -116,7 +122,7 @@ def press_keys(m):
 ctx = Context("basic_keys")
 ctx.keymap(
     {
-        "(uppercase | ship | sky) {basic_keys.alphabet}+ [(lowercase | sunk)]": uppercase_letters,
+        "(uppercase | ship | sky) {basic_keys.alphabet}+ [(lowercase | lower | sunk)]": uppercase_letters,
         "{basic_keys.modifiers}* {basic_keys.alphabet}+": press_keys,
         "{basic_keys.modifiers}* {basic_keys.digits}+": press_keys,
         "{basic_keys.modifiers}* {basic_keys.keys}+": press_keys,
