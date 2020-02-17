@@ -9,7 +9,7 @@ from talon_init import TALON_HOME
 from .. import config
 
 path = os.path.join(TALON_HOME, "last_phrase")
-WEBVIEW = True
+WEBVIEW = False
 NOTIFY = False
 hist_len = 10
 
