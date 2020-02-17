@@ -1,5 +1,3 @@
-[![CircleCI](https://circleci.com/gh/dwiel/talon_community/tree/master.svg?style=svg)](https://circleci.com/gh/dwiel/talon_community/tree/master)
-
 # talon_community
 
 A single source of application-specific scripts
