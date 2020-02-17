@@ -1,8 +1,6 @@
-# talon_community
+# talon_koolen
 
-A single source of application-specific scripts
-
-Clone a fork of this repository in a directory inside of your `user` directory, such as `community`.
+My personal fork of talon_community, a source of some very nice Talon scripts. Go check them out. ^w^
 
 ## Installation
 
